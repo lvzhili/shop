@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean class="org.apache.activemq.ActiveMQConnectionFactory" id="factory">
+        <property name="brokerURL" value="tcp://192.168.188.146:61616"/>
+    </bean>
+
+    <bean class="org.springframework.jms.connection.SingleConnectionFactory" id="connectionFactory">
+        <property name="targetConnectionFactory" ref="factory"/>
+    </bean>
+    <bean class="org.apache.activemq.command.ActiveMQQueue" id="queueTextDestination">
+        <constructor-arg value="dongyimai_queue_solr"/>
+    </bean>
+    <bean class="org.apache.activemq.command.ActiveMQQueue" id="queueSolrDeleteDestination">
+        <constructor-arg value="dongyimai_queue_solr_delete"/>
+    </bean>
+    <!--topic订阅模式-->
+    <bean class="org.apache.activemq.command.ActiveMQTopic" id="topicTextDestination">
+        <constructor-arg value="dongyimai_qtopic_solr"/>
+    </bean>
+    <!--消息监听容器-->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="queueTextDestination"/>
+        <property name="messageListener" ref="itemSearchListener"/>
+    </bean>
+
+    <!--删除消息监听容器-->
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="queueSolrDeleteDestination"/>
+        <property name="messageListener" ref="itemDeleteListener"/>
+    </bean>
+
+    <!--消息监听容器
+    <bean class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+        <property name="connectionFactory" ref="connectionFactory"/>
+        <property name="destination" ref="topicTextDestination"/>
+        <property name="messageListener" ref="myMessageListener"/>
+    </bean>-->
+</beans>
